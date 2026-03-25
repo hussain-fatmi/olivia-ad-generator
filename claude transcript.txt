@@ -1,0 +1,185 @@
+> Build me a Next.js AI-powered product ad generator app called "AdGen".
+What it does
+A user uploads a product image and writes a natural language prompt (e.g. "lifestyle photo on a marble countertop" or "summer Instagram ad with bold text"). The app analyzes the product using AI, then
+generates a creative ad image. The user can then iterate conversationally ("make the background warmer", "add a headline") and the app regenerates with the changes applied.
+Stack
+
+Next.js 14 (App Router) + TypeScript
+Tailwind CSS + shadcn/ui (Default style, Slate base color)
+OpenAI API — GPT-4o Vision + DALL-E 3
+Deploy to Vercel
+
+Project setup
+bashnpx create-next-app@latest olivia-ad-generator --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"
+cd olivia-ad-generator
+npm install openai lucide-react
+npx shadcn@latest init
+npx shadcn@latest add button input textarea badge card separator
+```
+
+`.env.local`:
+```
+OPENAI_API_KEY=your_key_here
+```
+
+## File structure
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── analyze/route.ts
+│   │   ├── generate/route.ts
+│   │   └── chat/route.ts
+│   └── page.tsx
+└── types/index.ts
+API Routes
+/api/analyze (POST)
+
+Accepts { imageBase64: string }
+Sends image to GPT-4o Vision
+Returns JSON: { productType, description, dominantColors, style, suggestedPrompts[] }
+
+/api/generate (POST)
+
+Accepts { prompt, productType, productDescription, conversationHistory }
+First calls GPT-4o to pick a strategy and write an optimized DALL-E prompt
+Strategy is one of: background_swap, full_scene, or text_overlay — GPT-4o decides based on the user's prompt
+Then calls DALL-E 3 (1024x1024) to generate the image
+Returns: { imageUrl, strategy, strategyReason, adHeadline, adSubtext, dallePrompt }
+
+/api/chat (POST)
+
+Accepts { message, conversationHistory, productType, productDescription }
+Calls GPT-4o to interpret the user's refinement request
+Returns: { reply, newPrompt } — if newPrompt is non-null, the frontend re-calls /api/generate
+
+Frontend (page.tsx)
+Single page, dark theme (bg-gray-950), two-column layout on desktop:
+Left column:
+
+Drag-and-drop image upload zone
+After upload: auto-analysis runs, shows detected product type + 3 clickable prompt suggestions
+Prompt textarea + "Generate Ad" button (violet)
+
+Right column:
+
+Result canvas area — shows generated image, strategy badge, AI explanation, ad headline copy, and "Open Full Size" button
+Chat panel (appears after first generation) — message history + input for iterative refinement
+
+Agentic behaviors to highlight
+
+Auto product detection — GPT-4o Vision identifies product type and describes it on upload
+Prompt suggestions — AI suggests 3 creative prompts tailored to the detected product
+Strategy routing — GPT-4o autonomously picks background_swap / full_scene / text_overlay based on the user's prompt
+Strategy explanation — UI shows a badge explaining what approach was chosen and why
+Conversational iteration — full chat history passed on every follow-up so the AI has context
+
+UI details
+
+Color scheme: gray-950 background, violet-600 accents
+shadcn components: Button, Textarea, Badge, Separator
+lucide-react icons: Sparkles, Upload, Send, RefreshCw, Download, ChevronRight
+Loading states: spinner on analysis, spin animation on generation
+App state machine: idle → analyzing → ready → generating → done
+
+Types (src/types/index.ts)
+typescriptexport interface ProductAnalysis {
+  productType: string;
+  description: string;
+  dominantColors: string[];
+  style: string;
+  suggestedPrompts: string[];
+}
+
+export interface GenerationResult {
+  imageUrl: string;
+  strategy: string;
+  strategyReason: string;
+  adHeadline: string;
+  adSubtext?: string;
+  dallePrompt: string;
+}
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+Please build all files in full — types/index.ts, all three API routes, and page.tsx. No placeholders.
+
+● I'll build the complete AdGen app for you. Let me start by creating a todo list to track the implementation.
+
+● Now let me build all the files. Starting with the types:
+
+● Write(src\types\index.ts)
+  ⎿  Wrote 1 lines to src\types\index.ts
+ 
+● Write(src\app\api\analyze\route.ts)
+  ⎿  Wrote 1 lines to src\app\api\analyze\route.ts
+
+● Write(src\app\api\generate\route.ts)
+  ⎿  Wrote 1 lines to src\app\api\generate\route.ts
+
+● Write(src\app\api\chat\route.ts)
+  ⎿  Wrote 1 lines to src\app\api\chat\route.ts
+
+● Write(src\app\page.tsx)
+  ⎿  Error writing file
+
+● Read(src\app\page.tsx)
+  ⎿  Read 66 lines
+
+● Write(src\app\page.tsx)
+  ⎿  Updated src\app\page.tsx with 398 additions and 56 removals
+        
+● Write(.env.local)
+  ⎿  Wrote 1 lines to .env.local
+     
+● Perfect! I've built the complete AdGen app with all the required files. Here's what was created:
+
+  Files Created
+
+  1. Types (src/types/index.ts)
+  - ProductAnalysis, GenerationResult, and ChatMessage interfaces
+
+  2. API Routes
+  - /api/analyze/route.ts - GPT-4o Vision analyzes uploaded product images
+  - /api/generate/route.ts - GPT-4o picks strategy + DALL-E 3 generates ads
+  - /api/chat/route.ts - Conversational refinement with context awareness
+
+  3. Frontend (src/app/page.tsx)
+  - Dark theme (gray-950 bg, violet-600 accents)
+  - Drag-and-drop image upload
+  - Auto product detection with AI analysis
+  - 3 AI-suggested prompts
+  - Two-column layout (controls + results)
+  - Chat interface for iterative refinement
+  - Strategy badges and explanations
+
+  4. Environment (.env.local)
+  - Template for OpenAI API key
+
+  Next Steps
+
+  Run these commands to complete the setup:
+
+  # Install dependencies
+  npm install openai lucide-react
+
+  # Initialize shadcn/ui
+  npx shadcn@latest init
+
+  # Add shadcn components
+  npx shadcn@latest add button input textarea badge card separator
+
+  # Add your OpenAI API key to .env.local
+  # Then start the dev server
+  npm run dev
+
+  The app features agentic AI behaviors:
+  - Auto product detection from images
+  - AI-generated creative prompt suggestions
+  - Autonomous strategy selection (background_swap/full_scene/text_overlay)
+  - Conversational iteration with full context
+  - Strategy explanations for transparency
+
+  Ready to generate product ads at http://localhost:3000!
