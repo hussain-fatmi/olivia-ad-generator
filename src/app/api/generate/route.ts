@@ -79,7 +79,7 @@ Create the ad strategy and DALL-E prompt.`,
       quality: "standard",
     });
 
-    const imageUrl = imageResponse.data[0].url;
+    const imageUrl = imageResponse.data?.[0]?.url;
     if (!imageUrl) {
       throw new Error("No image URL returned from DALL-E");
     }
