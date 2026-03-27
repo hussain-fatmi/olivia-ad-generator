@@ -6,6 +6,16 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+function parseJSONResponse(content: string): any {
+  let cleaned = content.trim();
+  if (cleaned.startsWith("```json")) {
+    cleaned = cleaned.replace(/^```json\s*/, "").replace(/```\s*$/, "");
+  } else if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```\s*/, "").replace(/```\s*$/, "");
+  }
+  return JSON.parse(cleaned.trim());
+}
+
 export async function POST(request: NextRequest) {
   try {
     const {
@@ -62,7 +72,7 @@ User's new message: ${message}`,
       throw new Error("No response from OpenAI");
     }
 
-    const chatResponse = JSON.parse(content);
+    const chatResponse = parseJSONResponse(content);
 
     return NextResponse.json(chatResponse);
   } catch (error) {

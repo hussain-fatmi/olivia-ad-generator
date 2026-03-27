@@ -6,6 +6,16 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+function parseJSONResponse(content: string): any {
+  let cleaned = content.trim();
+  if (cleaned.startsWith("```json")) {
+    cleaned = cleaned.replace(/^```json\s*/, "").replace(/```\s*$/, "");
+  } else if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```\s*/, "").replace(/```\s*$/, "");
+  }
+  return JSON.parse(cleaned.trim());
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { imageBase64 } = await request.json();
@@ -58,7 +68,7 @@ Return your response as valid JSON with this exact structure:
       throw new Error("No response from OpenAI");
     }
 
-    const analysis: ProductAnalysis = JSON.parse(content);
+    const analysis: ProductAnalysis = parseJSONResponse(content);
 
     return NextResponse.json(analysis);
   } catch (error) {

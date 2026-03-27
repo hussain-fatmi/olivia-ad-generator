@@ -6,6 +6,16 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+function parseJSONResponse(content: string): any {
+  let cleaned = content.trim();
+  if (cleaned.startsWith("```json")) {
+    cleaned = cleaned.replace(/^```json\s*/, "").replace(/```\s*$/, "");
+  } else if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```\s*/, "").replace(/```\s*$/, "");
+  }
+  return JSON.parse(cleaned.trim());
+}
+
 export async function POST(request: NextRequest) {
   try {
     const {
@@ -69,7 +79,7 @@ Create the ad strategy and DALL-E prompt.`,
       throw new Error("No strategy response from OpenAI");
     }
 
-    const strategy = JSON.parse(strategyContent);
+    const strategy = parseJSONResponse(strategyContent);
 
     const imageResponse = await openai.images.generate({
       model: "dall-e-3",
